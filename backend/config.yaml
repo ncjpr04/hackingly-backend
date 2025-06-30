@@ -1,0 +1,8 @@
+cache:
+  enabled: true
+  ttl_minutes: 60  # each cache entry expires after 60 minutes
+
+anti_rate_limiting:
+  delay: off  # Disable delay between requests
+  noise: off  # Disable random requests
+  
