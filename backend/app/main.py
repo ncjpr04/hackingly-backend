@@ -16,23 +16,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Check if LinkedIn credentials are available
-# linkedin_username = os.getenv("nitinchoudhary22112004@gmail.com")
-# linkedin_password = os.getenv("sumitra@1984")
-linkedin_username = "nitinchoudhary22112004@gmail.com"
-linkedin_password = "sumitra@1984"
-
-if linkedin_username and linkedin_password:
-    try:
-        linkedin_agent = LinkedInAgent()
-    except ChallengeException as e:
-        print("LinkedIn login challenge required, you're screwed 💀")
-        linkedin_agent = None
-    except Exception as e:
-        print(f"Failed to initialize LinkedInAgent: {e}")
-        linkedin_agent = None
-else:
-    print("LinkedIn credentials not provided. Set LINKEDIN_AGENT_USERNAME and LINKEDIN_AGENT_PASSWORD environment variables.")
+try:
+    linkedin_agent = LinkedInAgent()
+except ChallengeException as e:
+    print("LinkedIn login challenge required, you're screwed 💀")
+    linkedin_agent = None
+except Exception as e:
+    print(f"Failed to initialize LinkedInAgent: {e}")
     linkedin_agent = None
 
 @app.get("/")
@@ -51,7 +41,7 @@ async def read_root():
 async def get_profile(profile_id: str):
     try:
         if linkedin_agent is None:
-            raise HTTPException(status_code=503, detail="LinkedIn service unavailable. Please ensure LINKEDIN_AGENT_USERNAME and LINKEDIN_AGENT_PASSWORD environment variables are set.")
+            raise HTTPException(status_code=400, detail="LinkedIn login challenge required, you're screwed 💀 (please contact the maintainer if this issue persists).")
         profile_data = await linkedin_agent.get_ingest(profile_id)
         return profile_data
     except FetchException:
@@ -64,7 +54,7 @@ async def health_check():
     if linkedin_agent is None:
         raise HTTPException(
             status_code=503, 
-            detail="LinkedIn service unavailable. Please ensure LinkedIn credentials are configured."
+            detail="LinkedIn login challenge required."
         )
     return {"status": "ok"}
 
@@ -73,6 +63,6 @@ async def waiting_count():
     if linkedin_agent is None:
         raise HTTPException(
             status_code=503, 
-            detail="LinkedIn service unavailable. Please ensure LinkedIn credentials are configured."
+            detail="LinkedIn login challenge required."
         )
     return linkedin_agent.get_queue_status()
