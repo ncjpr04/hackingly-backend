@@ -58,6 +58,15 @@ def test_error_handling():
     except Exception as e:
         print(f"Error: {str(e)}")
     
+    # Test 5: Startup info endpoint
+    print("\n5. Testing startup info endpoint:")
+    try:
+        response = client.get("/api/startup-info")
+        print(f"Status: {response.status_code}")
+        print(f"Response: {response.json()}")
+    except Exception as e:
+        print(f"Error: {str(e)}")
+    
     print("\n" + "=" * 50)
     print("Error handling test completed!")
 
