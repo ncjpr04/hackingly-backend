@@ -174,20 +174,28 @@ class LinkedInAgent:
     def get_profile(self, public_id: str):
         if self.linkedin is None:
             raise Exception("LinkedIn agent not initialized")
-        data = self.linkedin.get_profile(public_id)
-        if data:
-            return data
-        else:
-            raise Exception("LinkedIn profile not found")
+        try:
+            data = self.linkedin.get_profile(public_id)
+            if data:
+                return data
+            else:
+                raise Exception(f"LinkedIn profile not found for ID: {public_id}")
+        except Exception as e:
+            print(f"Error fetching profile for {public_id}: {str(e)}")
+            raise FetchException(f"Failed to fetch profile for {public_id}: {str(e)}")
     
     def get_profile_posts(self, public_id: str):
         if self.linkedin is None:
             raise Exception("LinkedIn agent not initialized")
-        data = self.linkedin.get_profile_posts(public_id)
-        if data:
-            return data
-        else:
-            raise Exception("Failed to get profile posts")
+        try:
+            data = self.linkedin.get_profile_posts(public_id)
+            if data:
+                return data
+            else:
+                raise Exception(f"Failed to get profile posts for ID: {public_id}")
+        except Exception as e:
+            print(f"Error fetching posts for {public_id}: {str(e)}")
+            raise FetchException(f"Failed to get profile posts for {public_id}: {str(e)}")
     
     async def get_ingest(self, public_id: str) -> ProfileResponse:
         """
@@ -220,8 +228,8 @@ class LinkedInAgent:
             raw_profile_data = self.get_profile(public_id)
             print("Got profile data.")
         except Exception as e:
-            print(repr(e))
-            raise FetchException("profile")
+            print(f"Error fetching profile data: {str(e)}")
+            raise FetchException(f"Failed to fetch profile data: {str(e)}")
         
         if self.NOISE_ON:
             await self._make_noise()
@@ -230,7 +238,7 @@ class LinkedInAgent:
             raw_posts_data = self.get_profile_posts(public_id)
             print("Got posts data.")
         except Exception as e:
-            print(repr(e))
+            print(f"Error fetching posts data (non-critical): {str(e)}")
             # Posts are not critical, so we can continue without them
             raw_posts_data = None
         

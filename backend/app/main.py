@@ -19,10 +19,12 @@ app.add_middleware(
 try:
     linkedin_agent = LinkedInAgent()
 except ChallengeException as e:
-    print("LinkedIn login challenge required, you're screwed 💀")
+    print(f"LinkedIn login challenge required, you're screwed 💀: {str(e)}")
     linkedin_agent = None
 except Exception as e:
-    print(f"Failed to initialize LinkedInAgent: {e}")
+    print(f"Failed to initialize LinkedInAgent: {str(e)}")
+    import traceback
+    traceback.print_exc()
     linkedin_agent = None
 
 @app.get("/")
@@ -44,10 +46,20 @@ async def get_profile(profile_id: str):
             raise HTTPException(status_code=400, detail="LinkedIn login challenge required, you're screwed 💀 (please contact the maintainer if this issue persists).")
         profile_data = await linkedin_agent.get_ingest(profile_id)
         return profile_data
-    except FetchException:
-        raise HTTPException(status_code=400, detail="Failed to fetch profile")
+    except FetchException as e:
+        print(f"FetchException occurred: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to fetch profile: {str(e)}")
+    except ParseException as e:
+        print(f"ParseException occurred: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Failed to parse profile data: {str(e)}")
+    except ChallengeException as e:
+        print(f"ChallengeException occurred: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"LinkedIn authentication challenge: {str(e)}")
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        print(f"Unexpected error occurred: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/api/health")
 async def health_check():
