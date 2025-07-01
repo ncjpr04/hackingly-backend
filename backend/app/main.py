@@ -17,8 +17,10 @@ app.add_middleware(
 )
 
 # Check if LinkedIn credentials are available
-linkedin_username = os.getenv("nitinchoudhary22112004@gmail.com")
-linkedin_password = os.getenv("sumitra@1984")
+# linkedin_username = os.getenv("nitinchoudhary22112004@gmail.com")
+# linkedin_password = os.getenv("sumitra@1984")
+linkedin_username = "nitinchoudhary22112004@gmail.com"
+linkedin_password = "sumitra@1984"
 
 if linkedin_username and linkedin_password:
     try:
